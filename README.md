@@ -316,21 +316,28 @@ $ aws lambda create-function --region us-west-2 \
 {
     "TracingConfig": {
         "Mode": "PassThrough"
-    }, 
-    "CodeSha256": "dTgIO9Vhg3RBJ3fqSIxyCgYOX7xsDHx0s3iSMQ15KLQ=", 
-    "FunctionName": "GetEC2Statuses", 
-    "CodeSize": 4694387, 
-    "RevisionId": "8b1290da-94ce-44a5-8636-829490402268", 
-    "MemorySize": 128, 
-    "FunctionArn": "arn:aws:lambda:us-west-2:907538708243:function:GetEC2Statuses", 
-    "Version": "$LATEST", 
-    "Role": "arn:aws:iam::907538708243:role/LambdaEC2Access", 
-    "Timeout": 3, 
-    "LastModified": "2018-05-31T18:16:53.195+0000", 
-    "Handler": "main", 
-    "Runtime": "go1.x", 
+    },
+    "CodeSha256": "dTgIO9Vhg3RBJ3fqSIxyCgYOX7xsDHx0s3iSMQ15KLQ=",
+    "FunctionName": "GetEC2Statuses",
+    "CodeSize": 4694387,
+    "RevisionId": "8b1290da-94ce-44a5-8636-829490402268",
+    "MemorySize": 128,
+    "FunctionArn": "arn:aws:lambda:us-west-2:907538708243:function:GetEC2Statuses",
+    "Version": "$LATEST",
+    "Role": "arn:aws:iam::907538708243:role/LambdaEC2Access",
+    "Timeout": 3,
+    "LastModified": "2018-05-31T18:16:53.195+0000",
+    "Handler": "main",
+    "Runtime": "go1.x",
     "Description": ""
 }
 $
 
 ```
+
+## Testing
+
+To test the new Lambda function, login to the AWS console and select the Lambda Service from the drop-down services menu.  You should be able to select the new function from the list of Lambdas as shown below:
+
+[lambda_list]: https://github.com/1414C/cwl/images/Lambda1.jpeg "Lambda Functions"
+
