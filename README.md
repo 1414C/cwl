@@ -339,5 +339,5 @@ $
 
 To test the new Lambda function, login to the AWS console and select the Lambda Service from the drop-down services menu.  You should be able to select the new function from the list of Lambdas as shown below:
 
-[lambda_list]: https://github.com/1414C/cwl/images/Lambda1.jpeg "Lambda Functions"
+![Lambda Functions](https://github.com/1414C/cwl/raw/master/images/Lambda1.jpeg "Lambda Functions")
 
