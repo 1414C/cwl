@@ -286,9 +286,9 @@ func GetEC2Statuses(event GetEC2InstancesEvent2) (string, error) {
 	// ec2.DescribeInstanceStatus(..)
 	var result *ec2.DescribeInstanceStatusOutput
 
-	// if no EC2 instances were provided by the event, call the AWS SDK
-	// ec2.DescribeInstanceStatuses method without an instance list and
-	// return the result.  Otherwise, iterate through the slice of
+	// if no EC2 instance names were provided by the event, call the AWS
+	// SDK ec2.DescribeInstanceStatuses method without an instance list
+	// and return the result.  Otherwise, iterate through the slice of
 	// EC2 instances provided in the incoming event and build a slice of
 	// string pointers as required be the the AWS SDK ec2.DescribeInstanceStatusInput
 	// struct.  Next, call the ec2.DescribeInstanceStatuses method with the
