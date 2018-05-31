@@ -213,10 +213,124 @@ func GetEC2Statuses(event GetEC2InstancesEvent2) (string, error) {
 
 Once a new function has been declared and it's handler implemented, the next step is building and deploying the function in AWS Lambda.  The steps that are required are as follows:
 
-1. Set the AWS_PROFILE environment variable with the profile you wish to use for the push to AWS.
-1. Invoke the aws CLI tool to delete any existing function with the same name in AWS Lambda.
-1. Build the new handler for the target run environment.
-1. Update the permissions of the new executable.
-1. Compress the executable.
-1. Invoke the aws CLI tool to upload the zipped executable to AWS and create the new Lambda function.
+- Make sure that the aws CLI tools have been installed on your local machine.
+- Follow the CLI setup recommendations/procedures and ensure that your profile information is correct in the ~/.aws directory on your local machine.
+- Set the AWS_PROFILE environment variable with the profile you wish to use for the push to AWS.
+- Invoke the aws CLI tool to delete any existing function with the same name in AWS Lambda.
+- Build the new handler for the target run environment.
+- Update the permissions of the new executable.
+- Compress the executable.
+- Invoke the aws CLI tool to upload the zipped executable to AWS and create the new Lambda function.
 
+### Steps
+
+1. Open a terminal window and verify that you can call the aws tool.  You should see something like this:
+
+```bash
+
+$ which aws
+/usr/local/bin/aws
+
+```
+
+If the *Which* command does not find the aws tool, check your $PATH and verify that the AWS CLI tools have been installed.
+The CLI toolset and installation instructions are available at: <https://aws.amazon.com/cli/>
+
+2. Set the AWS_PROFILE environment variable with the profile you wish to use to push / create the new Lambda function in AWS.  You may check your profiles in the ~/.aws/profile file in your $HOME directory.  If you do not see a *config* and *credentials* file in ~/.aws, go back to the AWS CLI instructions at <https://aws.amazon.com/cli/> and follow the steps to confgure your CLI environment.
+
+Set and check the AWS_PROFILE environment variable as follows:
+
+```bash
+
+$ export AWS_PROFILE=myprofile
+$ echo $AWS_PROFILE
+myprofile
+
+```
+
+3. It is possible that there is an existing AWS Lambda function with the same name in your target environment.  There are a few options in this case, but for now we will simply invoke the *aws* CLI tool to delete any existing Lambda function sharing the same as our new function.
+
+```bash
+
+$ aws lambda delete-function --function-name GetEC2InstanceStatuses
+An error occurred (ResourceNotFoundException) when calling the DeleteFunction operation: Function not found: arn:aws:lambda:us-west-2:907538708243:function:GetEC2InstanceStatuses
+
+```
+
+If the function did not exist, you will see an error message as shown above.  This is fine, and we will come back to this step when we modify the function to pass back a more meaningful result.
+
+4. The new function must be compiled for the target operating system and CPU architecture before it can be pushed up to AWS Lambda.  In the case of Go this is quite easy, as it offers simple cross-compilation via the setting of two environment variables.  This demo was written on a mac running OS X, but our target EC2 environment is running EC2 Linux.  Both systems are running on amd64, but the GOARCH has been set for illustrative purposes.  A list of valid GOOS and GOARCH values can be found at <https://golang.org/doc/install/source#environment>.  Remember that you are specifying the *target* environement here.
+
+```bash
+
+$ GOOS=linux GOARCH=amd64 go build -o main getec2statuses.go
+$ ls -l
+total 33008
+-rw-r--r--  1 stevem  staff       147 May 31 09:19 getec2statuses.go
+-rwxr-xr-x  1 stevem  staff  16893531 May 31 11:56 main
+$
+
+```
+
+5. If the permissions of the newly generated executable allow execution at all three levels of permission continue to step 6, otherwise run the following command to grant the required permissions:
+
+```bash
+
+$ chmod 555 main
+
+```
+
+6. Compress the *main* executable into a file called *deployment.zip*.
+
+```bash
+
+$ zip deployment.zip ./main
+  adding: main (deflated 72%)
+$
+
+```
+
+7. Invoke the aws CLI tool to upload the *deployment.zip* file to AWS and create create the new Lambda function.  The aws tool has a lambda command annex and makes use of the following parameter when pushing a new function to AWS:
+
+#### create-function Parameters
+
+- ***function-name*** - This is the name of the function that will be created in AWS Lambda.  Best practice is to align this with the function-name used in the Go source code, although this is not a requirement.
+- ***memory*** - This sets the amount of memory allocated on the EC2 instance (MB) when running the Lambda function.
+- ***role*** - This is the AWS IAM Role that will be assigned to the new Lambda function.  You need to ensure that the Role you specify here has enough access to allow the Lambda function to run, as well as any other Policies that are required.  In our case, the Role must contain write access to CloudWatch, as we make use of the log.Println/log.Printf methods in our new Lambda function.  We are also making use of the AWS SDK to access EC2, so we need to ensure that the role offers EC2 access as well.
+- ***runtime*** - Specifies the runtime to be used when executing the Lambda function in the AWS environment.
+- ***zip-file*** - Specifies the location of the compiled and zipped function on the local machine.
+- ***handler*** - Specifies the name of the handler function in the compiled source code.
+
+Execute the *aws* CLI tool as follows:
+
+```bash
+
+$ aws lambda create-function --region us-west-2 \
+--function-name GetEC2Statuses \
+--memory 128 \
+--role arn:aws:iam::907538708243:role/LambdaEC2Access \
+--runtime go1.x \
+--zip-file fileb:///Users/stevem/gowork/src/github.com/1414C/cwl/m4/deployment.zip \
+--handler main
+
+{
+    "TracingConfig": {
+        "Mode": "PassThrough"
+    }, 
+    "CodeSha256": "dTgIO9Vhg3RBJ3fqSIxyCgYOX7xsDHx0s3iSMQ15KLQ=", 
+    "FunctionName": "GetEC2Statuses", 
+    "CodeSize": 4694387, 
+    "RevisionId": "8b1290da-94ce-44a5-8636-829490402268", 
+    "MemorySize": 128, 
+    "FunctionArn": "arn:aws:lambda:us-west-2:907538708243:function:GetEC2Statuses", 
+    "Version": "$LATEST", 
+    "Role": "arn:aws:iam::907538708243:role/LambdaEC2Access", 
+    "Timeout": 3, 
+    "LastModified": "2018-05-31T18:16:53.195+0000", 
+    "Handler": "main", 
+    "Runtime": "go1.x", 
+    "Description": ""
+}
+$
+
+```
