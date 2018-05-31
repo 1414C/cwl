@@ -250,3 +250,78 @@ func GetEC2Instances2(event GetEC2InstancesEvent2) (string, error) {
 	// fmt.Println("Success", result)
 	return result.String(), nil
 }
+
+// GetEC2Statuses is a test function for Lambda->EC2 AWS SDK access,
+// the purpose of which is to write the statuses of the selected EC2
+// instances to stdout.
+func GetEC2Statuses(event GetEC2InstancesEvent2) (string, error) {
+
+	// this writes to stdout, but does not update the AWS CloudWatch
+	// log stream
+	fmt.Println("loading function...")
+
+	// log the received event, this will write the raw event to the
+	// CloudWatch log stream
+	log.Println("received event:", event)
+
+	// using the IAM credentials asigned to the Lambda function, establish
+	// a session in the 'us-west-2' AWS Region.  If a session cannot be
+	// established, return an empty string and the error returned by the
+	// AWS SDK NewSession(...) method.
+	sess, err := session.NewSession(&aws.Config{Region: aws.String("us-west-2")})
+	if err != nil {
+		return "", err
+	}
+
+	// write the raw session information to the AWS CloudWatch stream
+	fmt.Println("sess:", sess)
+
+	// create a new instance of the EC2 client using the 'us-west-2' session
+	svc := ec2.New(sess)
+	if svc == nil {
+		return "", fmt.Errorf("failed to create EC2 client for us-west-2 session. session.Config follows: %v", sess.Config)
+	}
+
+	// declare a variable to hold the result of the AWS SDK call to
+	// ec2.DescribeInstanceStatus(..)
+	var result *ec2.DescribeInstanceStatusOutput
+
+	// if no EC2 instances were provided by the event, call the AWS SDK
+	// ec2.DescribeInstanceStatuses method without an instance list and
+	// return the result.
+	if event.Instances == nil {
+		result, err = svc.DescribeInstanceStatus(nil)
+		if err != nil {
+			return "", fmt.Errorf("%s", err)
+		}
+	} else {
+		var instIds []*string
+		for _, inst := range event.Instances {
+			instIds = append(instIds, aws.String(inst))
+		}
+		log.Println("GOT:", instIds)
+
+		input := &ec2.DescribeInstanceStatusInput{
+			InstanceIds:         instIds,
+			IncludeAllInstances: aws.Bool(true),  // include stopped/terminated instances
+			DryRun:              aws.Bool(false), // convert to *
+		}
+
+		result, err = svc.DescribeInstanceStatus(input)
+		if err != nil {
+			return "", fmt.Errorf("%s", err)
+		}
+	}
+
+	// no error, but no instances were found
+	if result == nil || result.InstanceStatuses == nil {
+		return "", nil
+	}
+
+	for _, v := range result.InstanceStatuses {
+		fmt.Printf("instance-id: %s, instance-state: %s, instance-status: %s, system-status: %s\n", v.InstanceId, v.InstanceState, v.InstanceStatus, v.SystemStatus.Status)
+	}
+
+	// fmt.Println("Success", result)
+	return result.String(), nil
+}
