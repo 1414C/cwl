@@ -288,18 +288,24 @@ func GetEC2Statuses(event GetEC2InstancesEvent2) (string, error) {
 
 	// if no EC2 instances were provided by the event, call the AWS SDK
 	// ec2.DescribeInstanceStatuses method without an instance list and
-	// return the result.
+	// return the result.  Otherwise, iterate through the slice of
+	// EC2 instances provided in the incoming event and build a slice of
+	// string pointers as required be the the AWS SDK ec2.DescribeInstanceStatusInput
+	// struct.  Next, call the ec2.DescribeInstanceStatuses method with the
+	// input structure to get the statuses of the EC2 instances.  Errors
+	// will be returned to the caller (AWS Lambda runtime).
 	if event.Instances == nil {
 		result, err = svc.DescribeInstanceStatus(nil)
 		if err != nil {
 			return "", fmt.Errorf("%s", err)
 		}
 	} else {
+		// populate a ec2.DescribeInstanceStatusInput struct based on
+		// the instance-id's.
 		var instIds []*string
 		for _, inst := range event.Instances {
 			instIds = append(instIds, aws.String(inst))
 		}
-		log.Println("GOT:", instIds)
 
 		input := &ec2.DescribeInstanceStatusInput{
 			InstanceIds:         instIds,
@@ -318,8 +324,9 @@ func GetEC2Statuses(event GetEC2InstancesEvent2) (string, error) {
 		return "", nil
 	}
 
+	// write the instance statuses to stdout
 	for _, v := range result.InstanceStatuses {
-		fmt.Printf("instance-id: %s, instance-state: %s, instance-status: %s, system-status: %s\n", v.InstanceId, v.InstanceState, v.InstanceStatus, v.SystemStatus.Status)
+		fmt.Printf("instance-id: %s, instance-state: %s, instance-status: %s, system-status: %s\n", *v.InstanceId, *v.InstanceState, *v.InstanceStatus, *v.SystemStatus.Status)
 	}
 
 	// fmt.Println("Success", result)
