@@ -360,6 +360,12 @@ Next, we will trigger the Lambda function using via the test tool making use of 
 We can see that the function ran successfully and wrote a Stringified version of the function's result variable to stdout.  Notice that a CloudWatch log has also been generated containing details of the function's execution.  In this case, the instance being queried was in a stopped state.  We will start the instance via the EC2 dashboard and test the function again.
 
 ![Testing Instance Pending](https://github.com/1414C/cwl/raw/master/images/Lambda6.jpeg "Testing Instance Pending")
-A start has been requested for the EC2 instance and we can see that the instance state is now 'running'.  This does not indicate that the instance is ready for business, but rather that the image has been started.  Notice that the 'Reachability' of the instance is reading as 
+A start has been requested for the EC2 instance and we can see that the instance state is now 'pending'.
 
 ![Testing Instance Running](https://github.com/1414C/cwl/raw/master/images/Lambda6.jpeg "Testing Instance Running")
+After a brief wait, the test event was triggered again and we can see that the test instance now has an instance-state of 'running'.  This does not indicate that the instance is ready for business, but rather that the image has been started.  Notice that the 'Reachability' of the instance is shown as 'initiallizing'.  This status corresponds to the 'Status Checks' column in the EC2 instance overview in the EC2 dashboard.
+
+![Testing Instance Running](https://github.com/1414C/cwl/raw/master/images/Lambda6.jpeg "Testing Instance Running")
+After a brief wait, the test event was triggered again and we can see that the test instance has a instance-state of 'running' and the 'reachability' and 'system-status' are reported as 'passed' and 'ok' respectively.  The instance appears to be up and running.
+
+From here, we could excute other Lambda functions against the instance to do things like get its internal and external IP addresses, execute commands and call services etc.
