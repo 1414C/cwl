@@ -356,4 +356,10 @@ While we are here, setup another test event with more than one EC2 instance in t
 
 Next, we will trigger the Lambda function using via the test tool making use of the new single-instance test event:
 
+![Trigger Single Instance Test Event](https://github.com/1414C/cwl/raw/master/images/Lambda5.jpeg "Trigger Single Instance Test Event")
+We can see that the function ran successfully and wrote a Stringified version of the function's result variable to stdout.  Notice that a CloudWatch log has also been generated containing details of the function's execution.  In this case, the instance being queried was in a stopped state.  We will start the instance via the EC2 dashboard and test the function again.
 
+![Testing Instance Pending](https://github.com/1414C/cwl/raw/master/images/Lambda6.jpeg "Testing Instance Pending")
+A start has been requested for the EC2 instance and we can see that the instance state is now 'running'.  This does not indicate that the instance is ready for business, but rather that the image has been started.  Notice that the 'Reachability' of the instance is reading as 
+
+![Testing Instance Running](https://github.com/1414C/cwl/raw/master/images/Lambda6.jpeg "Testing Instance Running")
