@@ -251,10 +251,15 @@ func GetEC2Instances2(event GetEC2InstancesEvent2) (string, error) {
 	return result.String(), nil
 }
 
+// GetEC2StatusesEvent is a test event structure for Lambda->EC2 access.
+type GetEC2StatusesEvent struct {
+	Instances []string `json:"instances"`
+}
+
 // GetEC2Statuses is a test function for Lambda->EC2 AWS SDK access,
 // the purpose of which is to write the statuses of the selected EC2
 // instances to stdout.
-func GetEC2Statuses(event GetEC2InstancesEvent2) (string, error) {
+func GetEC2Statuses(event GetEC2StatusesEvent) (string, error) {
 
 	// this writes to stdout, but does not update the AWS CloudWatch
 	// log stream

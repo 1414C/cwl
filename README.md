@@ -341,3 +341,19 @@ To test the new Lambda function, login to the AWS console and select the Lambda 
 
 ![Lambda Functions](https://github.com/1414C/cwl/raw/master/images/Lambda1.jpeg "Lambda Functions")
 
+
+Click into the function and then select the 'Select a test event...' drop-down in the upper right corner of the screen and choose the 'Configure test event' option:
+
+![Configure Test Event](https://github.com/1414C/cwl/raw/master/images/Lambda2.jpeg "Configure Test Event")
+
+Setup a test event for a single EC2 instance in your account/region as shown below:
+
+![Configure Single Instance Test Event](https://github.com/1414C/cwl/raw/master/images/Lambda3.jpeg "Configure Test Event")
+
+While we are here, setup another test event with more than one EC2 instance in the test event instances element:
+
+![Configure Multiple Instance Test Event](https://github.com/1414C/cwl/raw/master/images/Lambda4.jpeg "Configure Test Event")
+
+Next, we will trigger the Lambda function using via the test tool making use of the new single-instance test event:
+
+
