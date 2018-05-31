@@ -6,7 +6,7 @@ A set of AWS Lambda functions are contained in the m*n* folders.  The goal is to
 
 Each m*n* folder contains a handler coded in go.  Implementation of each handler's processing logic is contained in the ../handler/handlers.go file.  Each m*n* folder (package) compiles its own main function in its own main package.  This is an AWS requirement(?) and is the reason for the somewhat unorthodox project layout.  To clarify; the as-is project layout was chosen to permit the grouping of AWS Lambda functions in a single project based on area-of-use/purpose.
 
-## Creating a Lambda function
+## Creating a Lambda function in Go
 
 1. We will code a new AWS Lambda function to read the status of one or more EC2 instances and report them to stdout.
 
@@ -208,3 +208,15 @@ func GetEC2Statuses(event GetEC2InstancesEvent2) (string, error) {
 ```
 
 9. At this point, the method is functionally complete, but does not pass the result back to the caller in an organized manner.  Calling the Stringer on the result is a handy way of veryifying the method is able to return what you are looking for, but is not what we should do long-term.  Note that we do not provide the result in JSON format, but as a go struct-type with json tags.  The runtime will marshal our return-type into JSON for consumption by the caller.  For now, we will leave the return parameter as-is and focus on getting the new function into AWS Lambda so we can test it.
+
+## Adding a new go function to AWS Lambda
+
+Once a new function has been declared and it's handler implemented, the next step is building and deploying the function in AWS Lambda.  The steps that are required are as follows:
+
+1. Set the AWS_PROFILE environment variable with the profile you wish to use for the push to AWS.
+1. Delete any existing function with the same name in AWS Lambda.
+1. Build the new handler for the target run environment.
+1. Update the permissions of the new executable.
+1. Compress the executable.
+1. Invoke the aws CLI tool to upload the zipped executable to AWS and create the new Lambda function.
+
