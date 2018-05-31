@@ -214,7 +214,7 @@ func GetEC2Statuses(event GetEC2InstancesEvent2) (string, error) {
 Once a new function has been declared and it's handler implemented, the next step is building and deploying the function in AWS Lambda.  The steps that are required are as follows:
 
 1. Set the AWS_PROFILE environment variable with the profile you wish to use for the push to AWS.
-1. Delete any existing function with the same name in AWS Lambda.
+1. Invoke the aws CLI tool to delete any existing function with the same name in AWS Lambda.
 1. Build the new handler for the target run environment.
 1. Update the permissions of the new executable.
 1. Compress the executable.
