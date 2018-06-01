@@ -43,8 +43,7 @@ Each m<sub>*n*</sub> folder contains a handler coded in go.  Implementation of e
 
 ```
 
-5. Recall that Lambda functions are triggered via AWS Events, and that Events can be generated from many sources in the AWS environment.  The standard interface for a Lambda function allows for an incoming event of *the specified type* to be passed into the function at the time that it is called.  Our new function accepts the *GetEC2
-StatusesEvent* , which has already been declared as follows in the handlers.go file:
+5. Recall that Lambda functions are triggered via AWS Events, and that Events can be generated from many sources in the AWS environment.  The standard interface for a Lambda function allows for an incoming event of *the specified type* to be passed into the function at the time that it is called.  Our new function accepts the *GetEC2StatusesEvent* , which has already been declared as follows in the handlers.go file:
 
 ```golang
 
