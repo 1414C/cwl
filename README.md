@@ -65,9 +65,8 @@ The event structure contains a single element which is intended to hold a slice 
     // instances to stdout.
     func GetEC2Statuses(event GetEC2StatusesEvent) (string, error) {
 
-        // this writes to stdout, but does not update the AWS CloudWatch
-        // log stream
-        fmt.Println("loading function...")
+        // write to the AWS CloudWatch log stream
+        log.Println("loading function...")
 
         // log the received event, this will write the raw event to the
         // CloudWatch log stream
@@ -87,9 +86,8 @@ The event structure contains a single element which is intended to hold a slice 
     // instances to stdout.
     func GetEC2Statuses(event GetEC2StatusesEvent) (string, error) {
 
-        // this writes to stdout, but does not update the AWS CloudWatch
-        // log stream
-        fmt.Println("loading function...")
+        // write to the AWS CloudWatch log stream
+        log.Println("loading function...")
 
         // log the received event, this will write the raw event to the
         // CloudWatch log stream
@@ -105,7 +103,7 @@ The event structure contains a single element which is intended to hold a slice 
         }
 
         // write the raw session information to the AWS CloudWatch stream
-        fmt.Println("sess:", sess)
+        log.Println("sess:", sess)
 
         // create a new instance of the EC2 client using the 'us-west-2' session
         // and return a simple error if the client creation fails.
@@ -128,9 +126,8 @@ The event structure contains a single element which is intended to hold a slice 
 // instances to stdout.
 func GetEC2Statuses(event GetEC2StatusesEvent) (string, error) {
 
-	// this writes to stdout, but does not update the AWS CloudWatch
-	// log stream
-	fmt.Println("loading function...")
+	 // write to the AWS CloudWatch log stream
+    log.Println("loading function...")
 
 	// log the received event, this will write the raw event to the
 	// CloudWatch log stream
@@ -146,7 +143,7 @@ func GetEC2Statuses(event GetEC2StatusesEvent) (string, error) {
 	}
 
 	// write the raw session information to the AWS CloudWatch stream
-	fmt.Println("sess:", sess)
+	log.Println("sess:", sess)
 
 	// create a new instance of the EC2 client using the 'us-west-2' session
 	svc := ec2.New(sess)
@@ -381,9 +378,8 @@ Returning a Stringified result is not terribly useful to the caller, so seeing a
 // instances to stdout.
 func GetEC2Statuses(event GetEC2StatusesEvent) ([]*ec2.InstanceStatus, error) {
 
-	// this writes to stdout, and updates the AWS CloudWatch
-	// log stream
-	log.Println("loading function...")
+	 // write to the AWS CloudWatch log stream
+    log.Println("loading function...")
 
 	// log the received event, this will write the raw event to the
 	// CloudWatch log stream
