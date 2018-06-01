@@ -4,13 +4,13 @@
 
 A set of AWS Lambda functions are contained in the m<sub>*n*</sub> folders.  The goal is to experiment / demonstrate the use of the AWS EC2 SDK from within the Lambda and Step-Function environments.
 
-Each <sub>*n*</sub> folder contains a handler coded in go.  Implementation of each handler's processing logic is contained in the ../handler/handlers.go file.  Each m<sub>*n*</sub> folder (package) compiles its own main function in its own main package.  This is an AWS requirement(?) and is the reason for the somewhat unorthodox project layout.  To clarify; the as-is project layout was chosen to permit the grouping of AWS Lambda functions in a single project based on area-of-use/purpose.
+Each m<sub>*n*</sub> folder contains a handler coded in go.  Implementation of each handler's processing logic is contained in the ../handler/handlers.go file.  Each m<sub>*n*</sub> folder (package) compiles its own main function in its own main package.  This is an AWS requirement(?) and is the reason for the somewhat unorthodox project layout.  To clarify; the as-is project layout was chosen to permit the grouping of AWS Lambda functions in a single project based on area-of-use/purpose.
 
 ## Creating a Lambda function in Go
 
 1. We will code a new AWS Lambda function to read the status of one or more EC2 instances and report them to stdout.
 
-2. Create a new folder in the project.  <sub>*n*</sub> is the format to-date, but any name can be used.  For the purposes of this walkthrough, we will create folder m5.
+2. Create a new folder in the project; m<sub>*n*</sub> is the format to-date, but any name can be used.  For the purposes of this walkthrough, we will create folder m5.
 
 3. Create new source file getec2statuses.go in the m5 folder as shown below.  This file will contain source-code used to build the handler for the new Lambda function.  If you are using an IDE with go tooling installed you will see complaints about cwl.GetEC2Statuses not existing.  This can be ignored for now.
 
