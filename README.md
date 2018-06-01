@@ -29,7 +29,7 @@ Each m<sub>*n*</sub> folder contains a handler coded in go.  Implementation of e
 
 ```
 
-4. Open the handlers.go source code file and add the GetEC2Statuses function defintion as shown below:
+4. Open the handlers.go source code file and add the GetEC2Statuses function definition as shown below:
 
 ```golang
 
@@ -56,7 +56,7 @@ Each m<sub>*n*</sub> folder contains a handler coded in go.  Implementation of e
 
 The event structure contains a single element which is intended to hold a slice of EC2 instance names.  If a slice is not provided in the event, the Instances element will contain *nil* and we will default the function to return the status of all instances in the target region.
 
-6. Next we will add some logic to the new function defintion to illustrate how to access the incoming event element.  Update the function definition of GetEC2Statuses as follows:
+6. Next we will add some logic to the new function definition to illustrate how to access the incoming event element.  Update the function definition of GetEC2Statuses as follows:
 
 ```golang
 
@@ -207,7 +207,7 @@ func GetEC2Statuses(event GetEC2InstancesEvent2) (string, error) {
 
 ```
 
-9. At this point, the method is functionally complete, but does not pass the result back to the caller in an organized manner.  Calling the Stringer on the result is a handy way of veryifying the method is able to return what you are looking for, but is not what we should do long-term.  Note that we do not provide the result in JSON format, but as a go struct-type with json tags.  The runtime will marshal our return-type into JSON for consumption by the caller.  For now, we will leave the return parameter as-is and focus on getting the new function into AWS Lambda so we can test it.
+9. At this point, the method is functionally complete, but does not pass the result back to the caller in an organized manner.  Calling the Stringer on the result is a handy way of verifying the method is able to return what you are looking for, but is not what we should do long-term.  Note that we do not provide the result in JSON format, but as a go struct-type with json tags.  The runtime will marshal our return-type into JSON for consumption by the caller.  For now, we will leave the return parameter as-is and focus on getting the new function into AWS Lambda so we can test it.
 
 ## Adding a new go function to AWS Lambda
 
@@ -236,7 +236,7 @@ $ which aws
 If the *Which* command does not find the aws tool, check your $PATH and verify that the AWS CLI tools have been installed.
 The CLI toolset and installation instructions are available at: <https://aws.amazon.com/cli/>
 
-2. Set the AWS_PROFILE environment variable with the profile you wish to use to push / create the new Lambda function in AWS.  You may check your profiles in the ~/.aws/profile file in your $HOME directory.  If you do not see a *config* and *credentials* file in ~/.aws, go back to the AWS CLI instructions at <https://aws.amazon.com/cli/> and follow the steps to confgure your CLI environment.
+2. Set the AWS_PROFILE environment variable with the profile you wish to use to push / create the new Lambda function in AWS.  You may check your profiles in the ~/.aws/profile file in your $HOME directory.  If you do not see a *config* and *credentials* file in ~/.aws, go back to the AWS CLI instructions at <https://aws.amazon.com/cli/> and follow the steps to configure your CLI environment.
 
 Set and check the AWS_PROFILE environment variable as follows:
 
@@ -259,7 +259,7 @@ An error occurred (ResourceNotFoundException) when calling the DeleteFunction op
 
 If the function did not exist, you will see an error message as shown above.  This is fine, and we will come back to this step when we modify the function to pass back a more meaningful result.
 
-4. The new function must be compiled for the target operating system and CPU architecture before it can be pushed up to AWS Lambda.  In the case of Go this is quite easy, as it offers simple cross-compilation via the setting of two environment variables.  This demo was written on a mac running OS X, but our target EC2 environment is running EC2 Linux.  Both systems are running on amd64, but the GOARCH has been set for illustrative purposes.  A list of valid GOOS and GOARCH values can be found at <https://golang.org/doc/install/source#environment>.  Remember that you are specifying the *target* environement here.
+4. The new function must be compiled for the target operating system and CPU architecture before it can be pushed up to AWS Lambda.  In the case of Go this is quite easy, as it offers simple cross-compilation via the setting of two environment variables.  This demo was written on a mac running OS X, but our target EC2 environment is running EC2 Linux.  Both systems are running on amd64, but the GOARCH has been set for illustrative purposes.  A list of valid GOOS and GOARCH values can be found at <https://golang.org/doc/install/source#environment>.  Remember that you are specifying the *target* environment here.
 
 ```bash
 
@@ -363,12 +363,12 @@ We can see that the function ran successfully and wrote a Stringified version of
 A start has been requested for the EC2 instance and we can see that the instance state is now 'pending'.
 
 ![Testing Instance Running](https://github.com/1414C/cwl/raw/master/images/Lambda6.jpeg "Testing Instance Running")
-After a brief wait, the test event was triggered again and we can see that the test instance now has an instance-state of 'running'.  This does not indicate that the instance is ready for business, but rather that the image has been started.  Notice that the 'Reachability' of the instance is shown as 'initiallizing'.  This status corresponds to the 'Status Checks' column in the EC2 instance overview in the EC2 dashboard.
+After a brief wait, the test event was triggered again and we can see that the test instance now has an instance-state of 'running'.  This does not indicate that the instance is ready for business, but rather that the image has been started.  Notice that the 'Reachability' of the instance is shown as 'initializing  This status corresponds to the 'Status Checks' column in the EC2 instance overview in the EC2 dashboard.
 
 ![Testing Instance Running](https://github.com/1414C/cwl/raw/master/images/Lambda6.jpeg "Testing Instance Running")
 After another brief wait, the test event was triggered again and we can see that the test instance has a instance-state of 'running' and the 'reachability' and 'system-status' are reported as 'passed' and 'ok' respectively.  The instance appears to be up and running.
 
-From here, we could excute other Lambda functions against the instance to do things like get its internal and external IP addresses, execute commands and call services etc.
+From here, we could execute other Lambda functions against the instance to do things like get its internal and external IP addresses, execute commands and call services etc.
 
 ## Cleaning up the function return parameters
 
