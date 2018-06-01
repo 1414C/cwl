@@ -119,7 +119,7 @@ The event structure contains a single element which is intended to hold a slice 
 
 ```
 
-8. The next part does the actual job of taking the event input, formatting it and then using it to make a call using the AWS SDK ec2 client.  The ec2 client is comprehensive and directly exposes a method that can be used to obtain the status information from a set of instances in the targetted AWS Region.  The ec2 method accepts a slice of ec2 instance names, but can also be called with a *nil* value.  Calling with a *nil* results in the method returning status information for every instance in the caller's region.  Look closely at the input structures used by the various methods in the ec2 client API to ensure that the request matches up with your result expectations.
+8. The next part does the actual job of taking the event input, formatting it and then using it to make a call using the AWS SDK ec2 client.  The ec2 client is comprehensive and directly exposes a method that can be used to obtain the status information from a set of instances in the targeted AWS Region.  The ec2 method accepts a slice of ec2 instance names, but can also be called with a *nil* value.  Calling with a *nil* results in the method returning status information for every instance in the caller's region.  Look closely at the input structures used by the various methods in the ec2 client API to ensure that the request matches up with your result expectations.
 
 ```golang
 
