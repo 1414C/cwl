@@ -512,5 +512,4 @@ A call of the completed GetEC2Statuses function returns the following to the cal
   }
 ]
 
-
 ```
