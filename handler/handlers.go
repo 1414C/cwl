@@ -11,6 +11,7 @@ import (
 	"log"
 )
 
+// JobEvent holds AWS Batch job definition details
 type JobEvent struct {
 	JobName       string `json:"jobName"`
 	JobDefinition string `json:"jobDefinition"`
@@ -32,7 +33,7 @@ type JobGuid struct {
 // "ResultPath": "%.status" in the State Machine Definition.
 func CheckJobFunc3(event JobGuid) (string, error) {
 
-	fmt.Println("loading function...")
+	log.Println("loading function...")
 
 	// log the received event
 	log.Println("received event:", event)
@@ -67,7 +68,7 @@ func CheckJobFunc3(event JobGuid) (string, error) {
 		return "", err
 	}
 
-	fmt.Println("result:", result)
+	log.Println("result:", result)
 
 	// return the job status; JobStatusFailed if no Job found for JobId
 	if len(result.Jobs) > 0 {
@@ -94,7 +95,7 @@ func CheckJobFunc3(event JobGuid) (string, error) {
 // }
 func SubmitJobFunc3(event JobEvent) (JobGuid, error) {
 
-	fmt.Println("loading function...")
+	log.Println("loading function...")
 
 	// log the received event
 	log.Println("received event:", event)
@@ -129,7 +130,7 @@ func SubmitJobFunc3(event JobEvent) (JobGuid, error) {
 		return JobGuid{}, err
 	}
 
-	fmt.Println("result:", result)
+	log.Println("result:", result)
 
 	// create the response in the format of:
 	// "guid": {
@@ -152,7 +153,7 @@ type GetEC2InstancesEvent struct {
 // GetEC2Instances is a test method for Lambda->EC2 AWS SDK access
 func GetEC2Instances(event GetEC2InstancesEvent) (string, error) {
 
-	fmt.Println("loading function...")
+	log.Println("loading function...")
 
 	// log the received event
 	log.Println("received event:", event)
@@ -162,7 +163,7 @@ func GetEC2Instances(event GetEC2InstancesEvent) (string, error) {
 		panic(err)
 	}
 
-	fmt.Println("sess:", sess)
+	// log.Println("sess:", sess)
 	svc := ec2.New(sess)
 
 	if event.Instance == "" {
@@ -170,7 +171,7 @@ func GetEC2Instances(event GetEC2InstancesEvent) (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("%s", err)
 		}
-		fmt.Println("Success", result)
+		log.Println("Success", result)
 		return result.String(), nil
 	} else {
 		var instIds []*string
@@ -183,7 +184,7 @@ func GetEC2Instances(event GetEC2InstancesEvent) (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("%s", err)
 		}
-		fmt.Println("Success", result)
+		log.Println("Success", result)
 		return result.String(), nil
 	}
 }
@@ -196,7 +197,7 @@ type GetEC2InstancesEvent2 struct {
 // GetEC2Instances2 is a test method for Lambda->EC2 AWS SDK access
 func GetEC2Instances2(event GetEC2InstancesEvent2) (string, error) {
 
-	fmt.Println("loading function...")
+	log.Println("loading function...")
 
 	// log the received event
 	log.Println("received event:", event)
@@ -206,7 +207,7 @@ func GetEC2Instances2(event GetEC2InstancesEvent2) (string, error) {
 		panic(err)
 	}
 
-	fmt.Println("sess:", sess)
+	// log.Println("sess:", sess)
 	svc := ec2.New(sess)
 
 	if event.Instances == nil {
@@ -214,7 +215,7 @@ func GetEC2Instances2(event GetEC2InstancesEvent2) (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("%s", err)
 		}
-		fmt.Println("Success", result)
+		log.Println("Success", result)
 		return result.String(), nil
 	}
 
@@ -223,7 +224,7 @@ func GetEC2Instances2(event GetEC2InstancesEvent2) (string, error) {
 		instIds = append(instIds, aws.String(inst))
 	}
 
-	log.Println("GOT:", instIds)
+	// log.Println("GOT:", instIds)
 
 	input := &ec2.DescribeInstancesInput{
 		InstanceIds: instIds,
@@ -233,17 +234,18 @@ func GetEC2Instances2(event GetEC2InstancesEvent2) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("%s", err)
 	}
-	fmt.Printf("Got %d Reservations.\n", len(result.Reservations))
+
+	// log.Printf("Got %d Reservations.\n", len(result.Reservations))
 	if result.Reservations != nil {
 		for _, v := range result.Reservations {
 			if v.Instances != nil {
-				fmt.Printf("Reservation %v has %d Instances:\n", v.ReservationId, len(v.Instances))
+				log.Printf("Reservation %v has %d Instances:\n", v.ReservationId, len(v.Instances))
 				for _, vi := range v.Instances {
 					// fmt.Printf("instance-id: %s, instance-type: %s, instance-lifecycle: %s, launch-time: %v\n", *vi.InstanceId, *vi.InstanceType, *vi.InstanceLifecycle, vi.LaunchTime)
-					fmt.Printf("instance-id: %s, instance-type: %s, launch-time: %v, public-ip: %s\n", *vi.InstanceId, *vi.InstanceType, *vi.LaunchTime, *vi.PublicIpAddress)
+					log.Printf("instance-id: %s, instance-type: %s, launch-time: %v, public-ip: %s\n", *vi.InstanceId, *vi.InstanceType, *vi.LaunchTime, *vi.PublicIpAddress)
 				}
 			} else {
-				fmt.Printf("Reservation %v has no Instances.\n", v.ReservationId)
+				log.Printf("Reservation %v has no Instances.\n", v.ReservationId)
 			}
 		}
 	}
