@@ -369,3 +369,148 @@ After a brief wait, the test event was triggered again and we can see that the t
 After another brief wait, the test event was triggered again and we can see that the test instance has a instance-state of 'running' and the 'reachability' and 'system-status' are reported as 'passed' and 'ok' respectively.  The instance appears to be up and running.
 
 From here, we could excute other Lambda functions against the instance to do things like get its internal and external IP addresses, execute commands and call services etc.
+
+## Cleaning up the function return parameters
+
+Returning a Stringified result is not terribly useful to the caller, so seeing as the EC2 API returns a fairly concise dataset we will simply return the []*ec2.InstanceStatus type.  A complete and updated version of the GetEC2Statuses function follows:
+
+```golang
+
+// GetEC2Statuses is a test function for Lambda->EC2 AWS SDK access,
+// the purpose of which is to write the statuses of the selected EC2
+// instances to stdout.
+func GetEC2Statuses(event GetEC2StatusesEvent) ([]*ec2.InstanceStatus, error) {
+
+	// this writes to stdout, and updates the AWS CloudWatch
+	// log stream
+	log.Println("loading function...")
+
+	// log the received event, this will write the raw event to the
+	// CloudWatch log stream
+	log.Println("received event:", event.Instances)
+
+	// using the IAM credentials asigned to the Lambda function, establish
+	// a session in the 'us-west-2' AWS Region.  If a session cannot be
+	// established, return an empty string and the error returned by the
+	// AWS SDK NewSession(...) method.
+	sess, err := session.NewSession(&aws.Config{Region: aws.String("us-west-2")})
+	if err != nil {
+		return nil, err
+	}
+
+	// create a new instance of the EC2 client using the 'us-west-2' session
+	svc := ec2.New(sess)
+	if svc == nil {
+		return nil, fmt.Errorf("failed to create EC2 client for us-west-2 session. session.Config follows: %v", sess.Config)
+	}
+
+	// declare a variable to hold the result of the AWS SDK call to
+	// ec2.DescribeInstanceStatus(..)
+	var result *ec2.DescribeInstanceStatusOutput
+
+	// if no EC2 instance names were provided by the event, call the AWS
+	// SDK ec2.DescribeInstanceStatuses method without an instance list
+	// and return the result.  Otherwise, iterate through the slice of
+	// EC2 instances provided in the incoming event and build a slice of
+	// string pointers as required be the the AWS SDK ec2.DescribeInstanceStatusInput
+	// struct.  Next, call the ec2.DescribeInstanceStatuses method with the
+	// input structure to get the statuses of the EC2 instances.  Errors
+	// will be returned to the caller (AWS Lambda runtime).
+	if event.Instances == nil {
+		result, err = svc.DescribeInstanceStatus(nil)
+		if err != nil {
+			return nil, fmt.Errorf("%s", err)
+		}
+	} else {
+		// populate a ec2.DescribeInstanceStatusInput struct based on
+		// the instance-id's.
+		var instIds []*string
+		for _, inst := range event.Instances {
+			instIds = append(instIds, aws.String(inst))
+		}
+
+		input := &ec2.DescribeInstanceStatusInput{
+			InstanceIds:         instIds,
+			IncludeAllInstances: aws.Bool(true),  // include stopped/terminated instances
+			DryRun:              aws.Bool(false), // convert to *
+		}
+
+		result, err = svc.DescribeInstanceStatus(input)
+		if err != nil {
+			return nil, fmt.Errorf("%s", err)
+		}
+	}
+
+	// no error, but no instances were found
+	if result == nil || result.InstanceStatuses == nil {
+		return nil, nil
+	}
+
+	// write the instance statuses to stdout
+	for _, v := range result.InstanceStatuses {
+		log.Printf("instance-id: %s, instance-state: %s, instance-status: %s, system-status: %s\n", *v.InstanceId, *v.InstanceState, *v.InstanceStatus, *v.SystemStatus.Status)
+		log.Printf("system-status: %s\n", *v.SystemStatus.Status)
+		for _, d := range v.SystemStatus.Details {
+			log.Printf("system-status name %v impaired since %v\n", d.Name, d.ImpairedSince)
+		}
+	}
+	return result.InstanceStatuses, nil
+}
+
+```
+
+A call of the completed GetEC2Statuses function returns for following:
+
+```JSON
+
+[
+  {
+    "AvailabilityZone": "us-west-2a",
+    "Events": null,
+    "InstanceId": "i-02b6e4d7e690a090d",
+    "InstanceState": {
+      "Code": 80,
+      "Name": "stopped"
+    },
+    "InstanceStatus": {
+      "Details": null,
+      "Status": "not-applicable"
+    },
+    "SystemStatus": {
+      "Details": null,
+      "Status": "not-applicable"
+    }
+  },
+  {
+    "AvailabilityZone": "us-west-2a",
+    "Events": null,
+    "InstanceId": "i-055352fea72019e3f",
+    "InstanceState": {
+      "Code": 16,
+      "Name": "running"
+    },
+    "InstanceStatus": {
+      "Details": [
+        {
+          "ImpairedSince": null,
+          "Name": "reachability",
+          "Status": "passed"
+        }
+      ],
+      "Status": "ok"
+    },
+    "SystemStatus": {
+      "Details": [
+        {
+          "ImpairedSince": null,
+          "Name": "reachability",
+          "Status": "passed"
+        }
+      ],
+      "Status": "ok"
+    }
+  }
+]
+
+
+```

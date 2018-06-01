@@ -259,15 +259,15 @@ type GetEC2StatusesEvent struct {
 // GetEC2Statuses is a test function for Lambda->EC2 AWS SDK access,
 // the purpose of which is to write the statuses of the selected EC2
 // instances to stdout.
-func GetEC2Statuses(event GetEC2StatusesEvent) (string, error) {
+func GetEC2Statuses(event GetEC2StatusesEvent) ([]*ec2.InstanceStatus, error) {
 
-	// this writes to stdout, but does not update the AWS CloudWatch
+	// this writes to stdout, and updates the AWS CloudWatch
 	// log stream
-	fmt.Println("loading function...")
+	log.Println("loading function...")
 
 	// log the received event, this will write the raw event to the
 	// CloudWatch log stream
-	log.Println("received event:", event)
+	log.Println("received event:", event.Instances)
 
 	// using the IAM credentials asigned to the Lambda function, establish
 	// a session in the 'us-west-2' AWS Region.  If a session cannot be
@@ -275,16 +275,13 @@ func GetEC2Statuses(event GetEC2StatusesEvent) (string, error) {
 	// AWS SDK NewSession(...) method.
 	sess, err := session.NewSession(&aws.Config{Region: aws.String("us-west-2")})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-
-	// write the raw session information to the AWS CloudWatch stream
-	fmt.Println("sess:", sess)
 
 	// create a new instance of the EC2 client using the 'us-west-2' session
 	svc := ec2.New(sess)
 	if svc == nil {
-		return "", fmt.Errorf("failed to create EC2 client for us-west-2 session. session.Config follows: %v", sess.Config)
+		return nil, fmt.Errorf("failed to create EC2 client for us-west-2 session. session.Config follows: %v", sess.Config)
 	}
 
 	// declare a variable to hold the result of the AWS SDK call to
@@ -302,7 +299,7 @@ func GetEC2Statuses(event GetEC2StatusesEvent) (string, error) {
 	if event.Instances == nil {
 		result, err = svc.DescribeInstanceStatus(nil)
 		if err != nil {
-			return "", fmt.Errorf("%s", err)
+			return nil, fmt.Errorf("%s", err)
 		}
 	} else {
 		// populate a ec2.DescribeInstanceStatusInput struct based on
@@ -320,20 +317,22 @@ func GetEC2Statuses(event GetEC2StatusesEvent) (string, error) {
 
 		result, err = svc.DescribeInstanceStatus(input)
 		if err != nil {
-			return "", fmt.Errorf("%s", err)
+			return nil, fmt.Errorf("%s", err)
 		}
 	}
 
 	// no error, but no instances were found
 	if result == nil || result.InstanceStatuses == nil {
-		return "", nil
+		return nil, nil
 	}
 
 	// write the instance statuses to stdout
 	for _, v := range result.InstanceStatuses {
-		fmt.Printf("instance-id: %s, instance-state: %s, instance-status: %s, system-status: %s\n", *v.InstanceId, *v.InstanceState, *v.InstanceStatus, *v.SystemStatus.Status)
+		log.Printf("instance-id: %s, instance-state: %s, instance-status: %s, system-status: %s\n", *v.InstanceId, *v.InstanceState, *v.InstanceStatus, *v.SystemStatus.Status)
+		log.Printf("system-status: %s\n", *v.SystemStatus.Status)
+		for _, d := range v.SystemStatus.Details {
+			log.Printf("system-status name %v impaired since %v\n", d.Name, d.ImpairedSince)
+		}
 	}
-
-	// fmt.Println("Success", result)
-	return result.String(), nil
+	return result.InstanceStatuses, nil
 }
