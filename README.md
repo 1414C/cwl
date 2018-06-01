@@ -8,7 +8,7 @@ Each m<sub>*n*</sub> folder contains a handler coded in go.  Implementation of e
 
 ## Creating a Lambda function in Go
 
-1. We will code a new AWS Lambda function to read the status of one or more EC2 instances and report them to stdout.
+1. We will code a new AWS Lambda function to read the status of one or more EC2 instances and report them to stdout.  Once we are satisfied with the output, we will add code to export the instance status information back to the caller.
 
 2. Create a new folder in the project; m<sub>*n*</sub> is the format to-date, but any name can be used.  For the purposes of this walkthrough, we will create folder m5.
 
@@ -43,12 +43,13 @@ Each m<sub>*n*</sub> folder contains a handler coded in go.  Implementation of e
 
 ```
 
-5. Recall the Lambda functions are triggered via AWS Events, and the Events can be generated from many sources in the AWS environment.  The standard interface for a Lambda function allows for an incoming event of *the specified type* to be passed into the function at the time that it is called.  Our new function accepts the *GetEC2InstancesEvent2*, which has already been declared as follows in the handlers.go file:
+5. Recall that Lambda functions are triggered via AWS Events, and that Events can be generated from many sources in the AWS environment.  The standard interface for a Lambda function allows for an incoming event of *the specified type* to be passed into the function at the time that it is called.  Our new function accepts the *GetEC2
+StatusesEvent* , which has already been declared as follows in the handlers.go file:
 
 ```golang
 
-    // GetEC2InstancesEvent2 is a test event structure for Lambda->EC2 access.
-    type GetEC2InstancesEvent2 struct {
+    // GetEC2StatusesEvent is a test event structure for Lambda->EC2 access.
+    type GetEC2StatusesEvent struct {
       Instances []string `json:"instances"`
     }
 
@@ -63,7 +64,7 @@ The event structure contains a single element which is intended to hold a slice 
     // GetEC2Statuses is a test function for Lambda->EC2 AWS SDK access,
     // the purpose of which is to write the statuses of the selected EC2
     // instances to stdout.
-    func GetEC2Statuses(event GetEC2InstancesEvent2) (string, error) {
+    func GetEC2Statuses(event GetEC2StatusesEvent) (string, error) {
 
         // this writes to stdout, but does not update the AWS CloudWatch
         // log stream
@@ -85,7 +86,7 @@ The event structure contains a single element which is intended to hold a slice 
     // GetEC2Statuses is a test function for Lambda->EC2 AWS SDK access,
     // the purpose of which is to write the statuses of the selected EC2
     // instances to stdout.
-    func GetEC2Statuses(event GetEC2InstancesEvent2) (string, error) {
+    func GetEC2Statuses(event GetEC2StatusesEvent) (string, error) {
 
         // this writes to stdout, but does not update the AWS CloudWatch
         // log stream
@@ -126,7 +127,7 @@ The event structure contains a single element which is intended to hold a slice 
 // GetEC2Statuses is a test function for Lambda->EC2 AWS SDK access,
 // the purpose of which is to write the statuses of the selected EC2
 // instances to stdout.
-func GetEC2Statuses(event GetEC2InstancesEvent2) (string, error) {
+func GetEC2Statuses(event GetEC2StatusesEvent) (string, error) {
 
 	// this writes to stdout, but does not update the AWS CloudWatch
 	// log stream
