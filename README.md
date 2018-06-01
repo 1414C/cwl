@@ -459,7 +459,7 @@ func GetEC2Statuses(event GetEC2StatusesEvent) ([]*ec2.InstanceStatus, error) {
 
 ```
 
-A call of the completed GetEC2Statuses function returns for following:
+A call of the completed GetEC2Statuses function returns the following to the caller:
 
 ```JSON
 
