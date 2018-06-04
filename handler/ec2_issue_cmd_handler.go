@@ -2,11 +2,12 @@ package cwl
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ssm"
-	"log"
 )
 
 // EC2IssueCmdEvent triggers function cwl.EC2IssueCmd.
@@ -16,7 +17,7 @@ type EC2IssueCmdEvent struct {
 }
 
 // EC2IssueCmd runs the specified command on the specified EC2 instances.
-func EC2IssueCmd(event EC2IssueCmdEvent) (string, error) {
+func EC2IssueCmd(event EC2IssueCmdEvent) (*ssm.Command, error) {
 
 	// log the received event, this will write the raw event to the
 	// CloudWatch log stream
@@ -25,7 +26,7 @@ func EC2IssueCmd(event EC2IssueCmdEvent) (string, error) {
 
 	// if no EC2 instance names were provided by the event, return an error.
 	if event.Instances == nil {
-		return "", fmt.Errorf("no instance names were specified in triggering event %v", event)
+		return nil, fmt.Errorf("no instance names were specified in triggering event %v", event)
 	}
 
 	// using the IAM credentials asigned to the Lambda function, establish
@@ -34,13 +35,13 @@ func EC2IssueCmd(event EC2IssueCmdEvent) (string, error) {
 	// AWS SDK NewSession(...) method.
 	sess, err := session.NewSession(&aws.Config{Region: aws.String("us-west-2")})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	// create a new instance of the SSM client using the 'us-west-2' session
 	svc := ssm.New(sess)
 	if svc == nil {
-		return "", fmt.Errorf("failed to create EC2 client for us-west-2 session. session.Config follows: %v", sess.Config)
+		return nil, fmt.Errorf("failed to create EC2 client for us-west-2 session. session.Config follows: %v", sess.Config)
 	}
 
 	// convert instanceIds to []*string
@@ -103,5 +104,5 @@ func EC2IssueCmd(event EC2IssueCmdEvent) (string, error) {
 	}
 	log.Println("SendCommandInput result:")
 	log.Println(result)
-	return "", nil
+	return result.Command, nil
 }

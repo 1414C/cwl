@@ -2,13 +2,15 @@ package cwl
 
 import (
 	"fmt"
+
 	"github.com/aws/aws-sdk-go/service/ec2"
 	// "github.com/aws/aws-lambda-go/lambda"
+	"log"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/batch"
-	"log"
 )
 
 // JobEvent holds AWS Batch job definition details
@@ -173,20 +175,21 @@ func GetEC2Instances(event GetEC2InstancesEvent) (string, error) {
 		}
 		log.Println("Success", result)
 		return result.String(), nil
-	} else {
-		var instIds []*string
-		instIds = append(instIds, aws.String(event.Instance))
-		input := &ec2.DescribeInstancesInput{
-			InstanceIds: instIds,
-			DryRun:      aws.Bool(false), // convert to *
-		}
-		result, err := svc.DescribeInstances(input)
-		if err != nil {
-			return "", fmt.Errorf("%s", err)
-		}
-		log.Println("Success", result)
-		return result.String(), nil
 	}
+
+	var instIds []*string
+	instIds = append(instIds, aws.String(event.Instance))
+	input := &ec2.DescribeInstancesInput{
+		InstanceIds: instIds,
+		DryRun:      aws.Bool(false), // convert to *
+	}
+	result, err := svc.DescribeInstances(input)
+	if err != nil {
+		return "", fmt.Errorf("%s", err)
+	}
+	log.Println("Success", result)
+	return result.String(), nil
+
 }
 
 // GetEC2InstancesEvent2 is a test event structure for Lambda->EC2 access.
