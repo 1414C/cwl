@@ -2,7 +2,7 @@
 
 ## Overview
 
-A set of AWS Lambda functions are contained in the m<sub>*n*</sub> folders.  The goal is to experiment / demonstrate the use of the AWS EC2 SDK from within the Lambda and Step-Function environments.
+A quick set of test programs calling AWS Lambda functions are contained in the m<sub>*n*</sub> folders.  The goal is to experiment / demonstrate the use of the AWS EC2 SDK from within the Lambda and Step-Function environments.
 
 Each m<sub>*n*</sub> folder contains a handler coded in go.  Implementation of each handler's processing logic is contained in the ../handler/handlers.go file.  Each m<sub>*n*</sub> folder (cwl sub-package) compiles its own main function in its own main package.  This is an AWS requirement(?) and is the reason for the somewhat unorthodox project layout.  To clarify; the as-is project layout was chosen to permit the grouping of AWS Lambda functions in a single project based on area-of-use/purpose.
 
@@ -13,6 +13,10 @@ Each m<sub>*n*</sub> folder contains a handler coded in go.  Implementation of e
 2. Create a new folder in the project; m<sub>*n*</sub> is the format to-date, but any name can be used.  For the purposes of this walkthrough, we will create folder m5.
 
 3. Create new source file getec2statuses.go in the m5 folder as shown below.  This file will contain source-code used to build the handler for the new Lambda function.  If you are using an IDE with go tooling installed you will see complaints about cwl.GetEC2Statuses not existing.  This can be ignored for now.
+
+## Access
+
+It is up to you to ensure that you have access to AWS and supply your own IAM role(s).  You will see an IAM role in the code and you will need to set that up for yourself.  Additionally, notice that the *cwlbldlambda.sh* scripts reference *AWS_PROFILE=smacleod*; you will need to specify your own AWS profile and ensure that you have the correct access.
 
 ```golang
 
