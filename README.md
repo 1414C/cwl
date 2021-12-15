@@ -4,7 +4,7 @@
 
 A quick set of test programs calling AWS Lambda functions are contained in the m<sub>*n*</sub> folders.  The goal is to experiment / demonstrate the use of the AWS EC2 SDK from within the Lambda and Step-Function environments.
 
-Each m<sub>*n*</sub> folder contains a handler coded in go.  Implementation of each handler's processing logic is contained in the ../handler/handlers.go file.  Each m<sub>*n*</sub> folder (cwl sub-package) compiles its own main function in its own main package.  This is an AWS requirement(?) and is the reason for the somewhat unorthodox project layout.  To clarify; the as-is project layout was chosen to permit the grouping of AWS Lambda functions in a single project based on area-of-use/purpose.
+Each m<sub>*n*</sub> folder contains a handler coded in go.  Implementation of each handler's processing logic is contained in the ../handler/handlers.go file.  Each m<sub>*n*</sub> folder (cwl sub-package) compiles its own main function in its own main package.  To clarify; the as-is project layout was chosen to permit the grouping of AWS Lambda functions in a single project based on area-of-use/purpose.  Just some messing around-type code...
 
 ## Access
 
